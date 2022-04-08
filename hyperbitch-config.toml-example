@@ -1,0 +1,22 @@
+# TOML syntax configuration file for hyperbitch app
+# https://flask.palletsprojects.com/en/2.1.x/config/
+
+[app]
+
+# False, True
+testing = "False"
+
+# python -c 'import secrets; print(secrets.token_hex())' 
+secret_key = ""
+
+# your server name
+server_name = "example.com"
+
+# http, https
+prefered_url_scheme = "https"
+
+# False, True
+templates_auto_reload = "False"
+
+# https://bootswatch.com/
+bootstrap_bootswatch_theme = "vapor"

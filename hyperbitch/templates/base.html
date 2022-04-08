@@ -1,0 +1,65 @@
+{% from 'bootstrap5/nav.html' import render_nav_item %}
+{% from 'bootstrap5/utils.html' import render_icon %}
+{% from 'bootstrap5/utils.html' import render_messages %}
+<!doctype html>
+<html lang="en">
+    <head>
+        {% block head %}
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        {% block styles %}
+            <!-- Bootstrap CDN CSS -->
+            {{ bootstrap.load_css() }}
+            <!-- Local CSS -->
+            <link rel="stylesheet" href="/static/sidebars.css" />
+        {% endblock %}
+
+        <title>{% block title %}{% endblock %} 😁 HyperBitch</title>
+        {% endblock %}
+    </head>
+    <body>
+      <main>
+
+        <!-- Sidebar -->
+        <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px;">
+          <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+            <span class="fs-4">
+              {{ render_icon("person-workspace", color="white") }}
+              HyperBitch
+            </span>
+          </a>
+          <hr>
+          <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item">
+              <!-- aria-current="page" -->
+              <a href="{{ url_for('home') }}" class="nav-link {% block sidebar_home %}{% endblock %}">
+                {{ render_icon("shop", color="white") }}
+                Home
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('dashboard') }}" class="nav-link {% block sidebar_dashboard %}{% endblock %}">
+                {{ render_icon("speedometer2", color="white") }}
+                Dashboard
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Page content -->
+        <div id="content">
+          <div class="d-flex flex-column flex-shrink-0 p-3 text-dark bg-white">
+            {% block content %}{% endblock %}
+          </div>
+        </div>
+      </main>
+
+        {% block scripts %}
+            <!-- JavaScript -->
+            {{ bootstrap.load_js() }}
+            <script src="/static/sidebars.js" type="text/javascript"></script>
+        {% endblock %}
+    </body>
+</html>

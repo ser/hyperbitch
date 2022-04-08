@@ -1,0 +1,10 @@
+{% from 'bootstrap5/utils.html' import render_icon %}
+{% extends 'base.html' %}
+
+{% block title %}Main{% endblock %}
+{% block sidebar_home %}active{% endblock %}
+
+
+{% block content %}
+{{ render_icon('heart') }}
+{% endblock %}
