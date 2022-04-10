@@ -1,22 +1,37 @@
 # TOML syntax configuration file for hyperbitch app
 # https://flask.palletsprojects.com/en/2.1.x/config/
 
-[app]
-
-# False, True
-testing = "False"
+# false, true
+TESTING = false
 
 # python -c 'import secrets; print(secrets.token_hex())' 
-secret_key = ""
+SECRET_KEY = ""
+
+# recommended to use argon2 as one of the most secure schemes
+SECURITY_PASSWORD_HASH = "argon2"
+
+# python -c "import secrets; print(secrets.SystemRandom().getrandbits(128))"
+SECURITY_PASSWORD_SALT = ""
 
 # your server name
-server_name = "example.com"
+SERVER_NAME = "example.com"
 
 # http, https
-prefered_url_scheme = "https"
+PREFERRED_URL_SCHEME = "https"
 
 # False, True
-templates_auto_reload = "False"
+TEMPLATES_AUTO_RELOAD = false
 
 # https://bootswatch.com/
-bootstrap_bootswatch_theme = "vapor"
+BOOTSTRAP_BOOTSWATCH_THEME = "vapor"
+
+# SQLAlchemy
+SQLALCHEMY_DATABASE_URI = "sqlite:///../hyperbitch.db"
+
+# Mail config
+MAIL_SERVER = "smtp.example.com"
+MAIL_PORT = 25
+MAIL_USE_SSL = false
+MAIL_USE_TLS = true
+MAIL_USERNAME = "username"
+MAIL_PASSWORD = "password"

@@ -2,6 +2,7 @@
 """ users views """
 
 from flask import render_template
+from flask_security import auth_required
 
 from hyperbitch import app
 
@@ -9,6 +10,7 @@ from hyperbitch import app
 #jinja_env.add_extension(MarkdownExtension)
 
 @app.route('/dashboard')
+@auth_required()
 def dashboard():
     ''' dashboard page'''
     return render_template('dashboard.html')

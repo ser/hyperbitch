@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+""" setup the app """
 
 from setuptools import setup
 
@@ -8,8 +9,13 @@ setup(
     packages=['hyperbitch'],
     include_package_data=True,
     install_requires=[
-        'flask',
+        'argon2-cffi',
         'bootstrap-flask',
+        'flask',
+        'Flask-KVSession-fork',
+        'flask-security-too[fsqla,common]',
         'jinja_markdown',
+        'redis',
+        'sqlalchemy-repr',
     ],
 )
