@@ -4,7 +4,8 @@
 
 import redis
 import toml
-from flask import Flask
+from flask import Flask, request
+from flask_babel import Babel
 from flask_bootstrap import Bootstrap5
 from flask_kvsession import KVSessionExtension
 from flask_security import Security, SQLAlchemyUserDatastore
@@ -25,9 +26,10 @@ import hyperbitch.views.user
 store = RedisStore(redis.StrictRedis())
 
 # Flask extensions
+babel = Babel(app)
 bootstrap = Bootstrap5(app)
 db = SQLAlchemy(app)
-KVSessionExtension(store, app)
+kvs = KVSessionExtension(store, app)
 
 # Flask security = user registration and auth management
 fsqla.FsModels.set_db_info(db)
@@ -43,6 +45,12 @@ security = Security(app, user_datastore)
 def create_db():
     ''' Create DB if does not exist '''
     db.create_all()
+
+# Flask translations
+@babel.localeselector
+def get_locale():
+    ''' activating translations '''
+    return request.accept_languages.best_match(app.config['LANGUAGES'])
 
 if __name__ == '__main__':
     app.jinja_env.auto_reload = True

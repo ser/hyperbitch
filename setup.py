@@ -12,6 +12,7 @@ setup(
         'argon2-cffi',
         'bootstrap-flask',
         'flask',
+        'flask-babel',
         'Flask-KVSession-fork',
         'flask-security-too[fsqla,common]',
         'jinja_markdown',

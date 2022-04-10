@@ -36,13 +36,13 @@
               <!-- aria-current="page" -->
               <a href="{{ url_for('home') }}" class="nav-link {% block sidebar_home %}{% endblock %}">
                 {{ render_icon("shop", color="white") }}
-                Home
+                {{ _('Home') }}
               </a>
             </li>
             <li>
               <a href="{{ url_for('dashboard') }}" class="nav-link {% block sidebar_dashboard %}{% endblock %}">
                 {{ render_icon("speedometer2", color="white") }}
-                Dashboard
+                {{ _('Dashboard') }}
               </a>
             </li>
           </ul>

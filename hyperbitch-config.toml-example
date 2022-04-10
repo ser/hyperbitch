@@ -1,6 +1,9 @@
 # TOML syntax configuration file for hyperbitch app
 # https://flask.palletsprojects.com/en/2.1.x/config/
 
+# Languages hypebitch can speak
+LANGUAGES = ['en', 'pl']
+
 # false, true
 TESTING = false
 
