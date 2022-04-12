@@ -13,4 +13,12 @@ from hyperbitch import app
 @auth_required()
 def dashboard():
     ''' dashboard page'''
+
+
+    from hyperbitch import SingleJob
+
+
+    job1 = SingleJob(name='job1', user_id=1 )
+    app.db.session.add(job1)
+    app.db.session.commit()
     return render_template('dashboard.html')
