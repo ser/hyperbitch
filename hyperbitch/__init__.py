@@ -8,11 +8,15 @@ from flask import Flask, request
 from flask_babel import Babel
 from flask_bootstrap import Bootstrap5
 from flask_kvsession import KVSessionExtension
-from flask_security import Security, SQLAlchemyUserDatastore
-from flask_security.models import fsqla_v2 as fsqla
-from flask_sqlalchemy import SQLAlchemy
+from flask_security import (Security, SQLAlchemySessionUserDatastore,
+                            auth_required, current_user, hash_password)
 from simplekv.memory.redisstore import RedisStore
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
 from werkzeug.middleware.proxy_fix import ProxyFix
+
+from hyperbitch.database import db_session, init_db
+from hyperbitch.helpers import GUID
+from hyperbitch.models import Role, User
 
 app = Flask(__name__)
 app.config.from_file("../../hyperbitch-config.toml", load=toml.load)
@@ -28,23 +32,17 @@ store = RedisStore(redis.StrictRedis())
 # Flask extensions
 babel = Babel(app)
 bootstrap = Bootstrap5(app)
-db = SQLAlchemy(app)
 kvs = KVSessionExtension(store, app)
 
-# Flask security = user registration and auth management
-fsqla.FsModels.set_db_info(db)
-class Role(db.Model, fsqla.FsRoleMixin):
-    ''' Define default user roles DB '''
-class User(db.Model, fsqla.FsUserMixin):
-    ''' Define default user DB '''
-user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+# Setup Flask-Security
+user_datastore = SQLAlchemySessionUserDatastore(db_session, User, Role)
 security = Security(app, user_datastore)
 
 # Create DB if does not exist
 @app.before_first_request
 def create_db():
     ''' Create DB if does not exist '''
-    db.create_all()
+    init_db()
 
 # Flask translations
 @babel.localeselector
