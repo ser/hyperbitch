@@ -142,6 +142,12 @@ def add_task():
 
     return render_template('add_task.html', form=form)
 
+@app.route('/all_users')
+@auth_required()
+def all_users():
+    ''' all users table '''
+    data = User.query.all()
+    return render_template('all_users.html', data=data)
 
 if __name__ == '__main__':
     app.jinja_env.auto_reload = True
