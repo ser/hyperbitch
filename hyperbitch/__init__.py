@@ -22,7 +22,7 @@ from sqlalchemy.orm import backref, declarative_base, relationship
 from sqlalchemy.sql import func
 from sqlalchemy_repr import PrettyRepresentableBase
 from werkzeug.middleware.proxy_fix import ProxyFix
-from wtforms import (BooleanField, DateTimeField, StringField, SubmitField,
+from wtforms import (BooleanField, DateField, StringField, SubmitField,
                      TextAreaField)
 from wtforms.validators import DataRequired
 
@@ -102,13 +102,11 @@ def create_db():
 #    g.user = current_user.get_id()
 
 # Forms
-class AddTask(FlaskForm):
+class AddSTask(FlaskForm):
     ''' Add a task Form '''
     name = StringField('name', validators=[DataRequired()])
-    descr = TextAreaField('descr')
-    isrepeat = BooleanField('isrepeat')
-    cronschedule = StringField('cronschedule')
-    whento = DateTimeField('whento')
+    descr = TextAreaField('descr', render_kw={"rows": 14, "cols": 50})
+    created_at = DateField('created_at')
     submit = SubmitField()
 
 # Flask translations
@@ -116,9 +114,6 @@ class AddTask(FlaskForm):
 def get_locale():
     ''' activating translations '''
     return request.accept_languages.best_match(app.config['LANGUAGES'])
-
-#from jinja_markdown import MarkdownExtension
-#jinja_env.add_extension(MarkdownExtension)
 
 @app.route('/dashboard')
 @auth_required()
@@ -131,17 +126,21 @@ def dashboard():
     return render_template('dashboard.html')
 
 @app.route('/task', methods=['GET', 'POST'])
-@app.route('/task/<uuid:id>', methods=['GET', 'POST'])
+@app.route('/task/<uuid:tid>', methods=['GET', 'POST'])
 @auth_required()
-def task(id):
-    ''' adding a task '''
+def stask(tid=None):
+    ''' adding or modyfing a task '''
 
-    form = AddTask()
+    if tid:
+        record = SingleJob.query(tid)
+    else:
+        record = SingleJob()
+    form = AddSTask(obj=record)
 
     if form.validate_on_submit():
         return redirect(url_for('dashboard'))
 
-    return render_template('task.html', form=form)
+    return render_template('stask.html', form=form)
 
 @app.route('/admin/all_users')
 @auth_required()
