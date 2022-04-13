@@ -6,13 +6,15 @@ import uuid
 
 import redis
 import toml
-from flask import Flask, render_template, request
+from flask import Flask, g, redirect, render_template, request, url_for
 from flask_babel import Babel
 from flask_bootstrap import Bootstrap5
 from flask_kvsession import KVSessionExtension
+from flask_login import current_user
 from flask_security import Security, SQLAlchemyUserDatastore, auth_required
 from flask_security.models import fsqla_v2 as fsqla
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf import FlaskForm
 from simplekv.memory.redisstore import RedisStore
 from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer, String,
                         Text)
@@ -20,6 +22,9 @@ from sqlalchemy.orm import backref, declarative_base, relationship
 from sqlalchemy.sql import func
 from sqlalchemy_repr import PrettyRepresentableBase
 from werkzeug.middleware.proxy_fix import ProxyFix
+from wtforms import (BooleanField, DateTimeField, StringField, SubmitField,
+                     TextAreaField)
+from wtforms.validators import DataRequired
 
 from hyperbitch.helpers import GUID
 
@@ -82,16 +87,29 @@ class RepeatingJob(BitchBase):
 
     __tablename__ = 'repeatingjob'
 
+    cronschedule = Column(String, nullable=False)
     whento = Column(String, nullable=False)
     whichsingles = relationship('SingleJob', backref='repeatingjob', lazy=True)
     user_id = Column(Integer, ForeignKey(User.id))
-
 
 # Create DB if does not exist
 @app.before_first_request
 def create_db():
     ''' Create DB if does not exist '''
     db.create_all()
+
+#if current_user.is_authenticated():
+#    g.user = current_user.get_id()
+
+# Forms
+class AddTask(FlaskForm):
+    ''' Add a task Form '''
+    name = StringField('name', validators=[DataRequired()])
+    descr = TextAreaField('descr')
+    isrepeat = BooleanField('isrepeat')
+    cronschedule = StringField('cronschedule')
+    whento = DateTimeField('whento')
+    submit = SubmitField()
 
 # Flask translations
 @babel.localeselector
@@ -107,10 +125,23 @@ def get_locale():
 def dashboard():
     ''' dashboard page'''
 
-    job = SingleJob(name='job2', user_id=1 )
-    db.session.add(job)
-    db.session.commit()
+    #job = SingleJob(name='job2', user_id=1 )
+    #db.session.add(job)
+    #db.session.commit()
     return render_template('dashboard.html')
+
+@app.route('/add', methods=['GET', 'POST'])
+@auth_required()
+def add_task():
+    ''' adding a task '''
+
+    form = AddTask()
+
+    if form.validate_on_submit():
+        return redirect(url_for('dashboard'))
+
+    return render_template('add_task.html', form=form)
+
 
 if __name__ == '__main__':
     app.jinja_env.auto_reload = True
