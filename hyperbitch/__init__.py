@@ -130,9 +130,10 @@ def dashboard():
     #db.session.commit()
     return render_template('dashboard.html')
 
-@app.route('/add', methods=['GET', 'POST'])
+@app.route('/task', methods=['GET', 'POST'])
+@app.route('/task/<uuid:id>', methods=['GET', 'POST'])
 @auth_required()
-def add_task():
+def task(id):
     ''' adding a task '''
 
     form = AddTask()
@@ -140,14 +141,28 @@ def add_task():
     if form.validate_on_submit():
         return redirect(url_for('dashboard'))
 
-    return render_template('add_task.html', form=form)
+    return render_template('task.html', form=form)
 
-@app.route('/all_users')
+@app.route('/admin/all_users')
 @auth_required()
 def all_users():
     ''' all users table '''
     data = User.query.all()
-    return render_template('all_users.html', data=data)
+    return render_template('raw_table.html', data=data)
+
+@app.route('/admin/all_singlejobs')
+@auth_required()
+def all_singlejobs():
+    ''' all singlejobs table '''
+    data = SingleJob.query.all()
+    return render_template('raw_table.html', data=data)
+
+@app.route('/admin/all_repeatingjobs')
+@auth_required()
+def all_repeatingjobs():
+    ''' all repeatingjobs table '''
+    data = RepeatingJob.query.all()
+    return render_template('raw_table.html', data=data)
 
 if __name__ == '__main__':
     app.jinja_env.auto_reload = True
