@@ -87,8 +87,9 @@ class RepeatingJob(BitchBase):
 
     __tablename__ = 'repeatingjob'
 
-    cronschedule = Column(String, nullable=False)
-    whento = Column(String, nullable=False)
+    weekschedule = Column(String, nullable=False)
+    monthschedule = Column(String, nullable=False)
+    whento = Column(DateTime, nullable=False)
     whichsingles = relationship('SingleJob', backref='repeatingjob', lazy=True)
     user_id = Column(Integer, ForeignKey(User.id))
 
@@ -109,11 +110,24 @@ class AddSTask(FlaskForm):
     created_at = DateField('created_at')
     submit = SubmitField()
 
+class AddRTask(FlaskForm):
+    ''' Repeating task Form '''
+    name = StringField('name', validators=[DataRequired()])
+    descr = TextAreaField('descr', render_kw={"rows": 14, "cols": 50})
+    weekschedule = StringField('weekschedule')
+    monthschedule = StringField('monthschedule')
+    whento = DateField('whento')
+    submit = SubmitField()
+
 # Flask translations
 @babel.localeselector
 def get_locale():
     ''' activating translations '''
     return request.accept_languages.best_match(app.config['LANGUAGES'])
+
+#####################################
+# ROUTES
+#####################################
 
 @app.route('/dashboard')
 @auth_required()
@@ -125,14 +139,15 @@ def dashboard():
     #db.session.commit()
     return render_template('dashboard.html')
 
+
 @app.route('/task', methods=['GET', 'POST'])
 @app.route('/task/<uuid:tid>', methods=['GET', 'POST'])
 @auth_required()
 def stask(tid=None):
-    ''' adding or modyfing a task '''
+    ''' adding or modyfing a single task '''
 
     if tid:
-        record = SingleJob.query(tid)
+        record = SingleJob.query.get(tid)
     else:
         record = SingleJob()
     form = AddSTask(obj=record)
@@ -142,12 +157,31 @@ def stask(tid=None):
 
     return render_template('stask.html', form=form)
 
+@app.route('/repeat', methods=['GET', 'POST'])
+@app.route('/repeat/<uuid:tid>', methods=['GET', 'POST'])
+@auth_required()
+def rtask(tid=None):
+    ''' adding or modyfing a repeating task '''
+
+    if tid:
+        record = RepeatingJob.query.get(tid)
+    else:
+        record = RepeatingJob()
+    form = AddRTask(obj=record)
+
+    if form.validate_on_submit():
+        return redirect(url_for('dashboard'))
+
+    return render_template('rtask.html', form=form)
+
+
 @app.route('/admin/all_users')
 @auth_required()
 def all_users():
     ''' all users table '''
     data = User.query.all()
     return render_template('raw_table.html', data=data)
+
 
 @app.route('/admin/all_singlejobs')
 @auth_required()
@@ -156,6 +190,7 @@ def all_singlejobs():
     data = SingleJob.query.all()
     return render_template('raw_table.html', data=data)
 
+
 @app.route('/admin/all_repeatingjobs')
 @auth_required()
 def all_repeatingjobs():
@@ -163,6 +198,9 @@ def all_repeatingjobs():
     data = RepeatingJob.query.all()
     return render_template('raw_table.html', data=data)
 
+############################################
+# MAIN
+############################################
 if __name__ == '__main__':
     app.jinja_env.auto_reload = True
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)

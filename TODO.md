@@ -1,2 +1,3 @@
 - [ ] https://docs.sentry.io/platforms/python/guides/flask/
 - [ ] Bootstrap templates for Flask-Security user management https://flask-security-too.readthedocs.io/en/stable/customizing.html#views
+- [ ] codecov.io
