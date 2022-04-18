@@ -6,7 +6,7 @@ import uuid
 
 import redis
 import toml
-from flask import Flask, g, redirect, render_template, request, url_for
+from flask import Flask, flash, g, redirect, render_template, request, url_for
 from flask_babel import Babel
 from flask_bootstrap import Bootstrap5
 from flask_kvsession import KVSessionExtension
@@ -153,9 +153,14 @@ def stask(tid=None):
     form = AddSTask(obj=record)
 
     if form.validate_on_submit():
+        form.populate_obj(record)
+        db.session.add(record)
+        db.session.commit()
+        flash('Task added!', 'info')
         return redirect(url_for('dashboard'))
 
     return render_template('stask.html', form=form)
+
 
 @app.route('/repeat', methods=['GET', 'POST'])
 @app.route('/repeat/<uuid:tid>', methods=['GET', 'POST'])
@@ -170,6 +175,10 @@ def rtask(tid=None):
     form = AddRTask(obj=record)
 
     if form.validate_on_submit():
+        form.populate_obj(record)
+        db.session.add(record)
+        db.session.commit()
+        flash('Task added!', 'info')
         return redirect(url_for('dashboard'))
 
     return render_template('rtask.html', form=form)
