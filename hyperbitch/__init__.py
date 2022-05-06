@@ -185,15 +185,18 @@ def dayschedule(day=None):
 
 
 @app.route('/done/<uuid:tid>')
+@app.route('/done/<uuid:tid>/<int:tdone>')
 @limiter.limit("1/second")
 @auth_required()
-def mark_done(tid):
+def mark_done(tid, tdone=None):
     ''' Marking task as done.'''
     record = SingleJob.query.filter_by(id=tid).first_or_404()
-    print(current_user.id)
     # check if task belongs to user!
     if current_user.has_role("admin") or current_user.id == record.user_id:
-        record.finished_at = datetime.datetime.utcnow()
+        if tdone == 0:
+            record.finished_at = None
+        else:
+            record.finished_at = datetime.datetime.utcnow()
         db.session.commit()
         flash('Task marked as done!', 'info')
     else:

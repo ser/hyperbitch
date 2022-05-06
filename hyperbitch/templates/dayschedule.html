@@ -6,7 +6,7 @@
 {% block content %}
 <div class="card-group">
   {% for task in daytasks %}
-    <div class="card w-100">
+  <div class="card w-100 {% if task.finished_at %}bg-success{% endif %}">
       <div class="card-header">
         {{ task.id }}
       </div>
@@ -19,7 +19,11 @@
         </p>
       </div>
       <div class="card-footer">
-        <a href={{ url_for('mark_done', tid=task.id) }}>{{ _('Mark task as done') }}</a>
+        {% if not task.finished_at %}
+          <a href={{ url_for('mark_done', tid=task.id) }}>{{ _('Mark task as done') }}</a>
+        {% else %}
+          <a href={{ url_for('mark_done', tid=task.id, tdone=0) }}>{{ _('Mark task as NOT done') }}</a>
+        {% endif %}
       </div>
     </div>
   {%endfor %}
