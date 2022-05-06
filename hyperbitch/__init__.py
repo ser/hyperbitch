@@ -21,12 +21,12 @@ from flask_wtf import FlaskForm
 from simplekv.memory.redisstore import RedisStore
 from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer, String,
                         Text)
-from sqlalchemy.orm import backref, declarative_base, relationship
+from sqlalchemy.orm import backref, relationship
 from sqlalchemy.sql import func
 from sqlalchemy_repr import PrettyRepresentableBase
 from werkzeug.middleware.proxy_fix import ProxyFix
-from wtforms import (BooleanField, DateField, StringField, SubmitField,
-                     TextAreaField)
+from wtforms import (BooleanField, DateField, IntegerField, StringField,
+                     SubmitField, TextAreaField)
 from wtforms.validators import DataRequired
 
 from hyperbitch.helpers import GUID
@@ -34,7 +34,6 @@ from hyperbitch.helpers import GUID
 app = Flask(__name__)
 app.config.from_file("../../hyperbitch-config.toml", load=toml.load)
 
-Base = declarative_base(cls=PrettyRepresentableBase)
 
 # pylint: disable=wrong-import-position disable=too-few-public-methods disable=no-member
 import hyperbitch.views.public
@@ -57,9 +56,7 @@ fsqla.FsModels.set_db_info(db)
 class Role(db.Model, fsqla.FsRoleMixin):
     ''' Define default user roles DB '''
 class User(db.Model, fsqla.FsUserMixin):
-    #__tablename__ = 'users'
     ''' Define default user DB '''
-    #whichsingles = relationship('SingleJob', backref='singlejob', lazy=True)
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
 
@@ -69,8 +66,11 @@ def create_db():
     ''' Create DB if does not exist '''
     db.create_all()
 
-#if current_user.is_authenticated():
-#    g.user = current_user.get_id()
+#@app.before_request
+#def load_user():
+#    if current_user.is_authenticated:
+#        g.user = current_user.get_id()
+#    print(current_user.is_authenticated)
 
 # Flask translations
 @babel.localeselector
@@ -82,7 +82,7 @@ def get_locale():
 #####################################
 # DATABASE SCHEMA
 #####################################
-class BitchBase(db.Model, Base):
+class BitchBase(db.Model):
     ''' Base model '''
 
     __abstract__ = True
@@ -184,6 +184,23 @@ def dayschedule(day=None):
     return render_template('dayschedule.html', daytasks=daytasks)
 
 
+@app.route('/done/<uuid:tid>')
+@limiter.limit("1/second")
+@auth_required()
+def mark_done(tid):
+    ''' Marking task as done.'''
+    record = SingleJob.query.filter_by(id=tid).first_or_404()
+    print(current_user.id)
+    # check if task belongs to user!
+    if current_user.has_role("admin") or current_user.id == record.user_id:
+        record.finished_at = datetime.datetime.utcnow()
+        db.session.commit()
+        flash('Task marked as done!', 'info')
+    else:
+        flash('Something went wrong', 'danger')
+    return redirect(url_for('dayschedule'))
+
+
 @app.route('/task', methods=['GET', 'POST'])
 @app.route('/task/<uuid:tid>', methods=['GET', 'POST'])
 @limiter.limit("1/second")
@@ -199,6 +216,10 @@ def stask(tid=None):
 
     if form.validate_on_submit():
         form.populate_obj(record)
+        # if task does not have a user assigned, we assign current user
+        if not record.user_id:
+            record.user_id=current_user.id
+        # TO-DO: in future form could allow modifying task user by admin
         db.session.add(record)
         db.session.commit()
         flash('Task added!', 'info')
@@ -222,6 +243,10 @@ def rtask(tid=None):
 
     if form.validate_on_submit():
         form.populate_obj(record)
+        # if task does not have a user assigned, we assign current user
+        if not record.user_id:
+            record.user_id=current_user.id
+        # TO-DO: in future form could allow modifying task user by admin
         db.session.add(record)
         db.session.commit()
         flash('Task added!', 'info')

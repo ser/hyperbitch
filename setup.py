@@ -18,6 +18,5 @@ setup(
         'flask-markdown',
         'flask-security-too[fsqla,common]',
         'redis',
-        'sqlalchemy-repr',
     ],
 )

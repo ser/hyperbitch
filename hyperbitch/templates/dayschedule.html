@@ -1,8 +1,27 @@
 {% extends 'base.html' %}
 
-{% block title %}Add a repeating task{% endblock %}
-{% block sidebar_task %}active{% endblock %}
+{% block title %}Day schedule for{% endblock %}
+{% block sidebar_day %}active{% endblock %}
 
 {% block content %}
-{{ daytasks }}
+<div class="card-group">
+  {% for task in daytasks %}
+    <div class="card w-100">
+      <div class="card-header">
+        {{ task.id }}
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">
+          {{ task.name }}
+        </h5>
+        <p class="card-text">
+          {{ task.descr }}
+        </p>
+      </div>
+      <div class="card-footer">
+        <a href={{ url_for('mark_done', tid=task.id) }}>{{ _('Mark task as done') }}</a>
+      </div>
+    </div>
+  {%endfor %}
+</div>
 {% endblock %}
