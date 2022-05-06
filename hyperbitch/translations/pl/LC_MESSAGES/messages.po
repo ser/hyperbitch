@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-18 14:02+0700\n"
+"POT-Creation-Date: 2022-05-06 21:48+0700\n"
 "PO-Revision-Date: 2022-04-10 19:30+0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: pl\n"
@@ -19,11 +19,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.8.0\n"
 
-#: hyperbitch/templates/base.html:43
+#: hyperbitch/templates/base.html:53
 msgid "Dashboard"
 msgstr ""
 
-#: hyperbitch/templates/base.html:49
+#: hyperbitch/templates/base.html:59
 msgid "Add a single task"
 msgstr ""
 

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 ''' hyperbitch '''
 
+import datetime
 import uuid
 
 import redis
@@ -10,6 +11,8 @@ from flask import Flask, flash, g, redirect, render_template, request, url_for
 from flask_babel import Babel
 from flask_bootstrap import Bootstrap5
 from flask_kvsession import KVSessionExtension
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask_login import current_user
 from flask_security import Security, SQLAlchemyUserDatastore, auth_required
 from flask_security.models import fsqla_v2 as fsqla
@@ -46,6 +49,7 @@ store = RedisStore(redis.StrictRedis())
 babel = Babel(app)
 bootstrap = Bootstrap5(app)
 db = SQLAlchemy(app)
+limiter = Limiter(app, key_func=get_remote_address)
 kvs = KVSessionExtension(store, app)
 
 # Flask security = user registration and auth management
@@ -59,7 +63,25 @@ class User(db.Model, fsqla.FsUserMixin):
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
 
-# Native app DB Schema
+# Create DB if does not exist
+@app.before_first_request
+def create_db():
+    ''' Create DB if does not exist '''
+    db.create_all()
+
+#if current_user.is_authenticated():
+#    g.user = current_user.get_id()
+
+# Flask translations
+@babel.localeselector
+def get_locale():
+    ''' activating translations '''
+    return request.accept_languages.best_match(app.config['LANGUAGES'])
+
+
+#####################################
+# DATABASE SCHEMA
+#####################################
 class BitchBase(db.Model, Base):
     ''' Base model '''
 
@@ -74,13 +96,16 @@ class BitchBase(db.Model, Base):
                            onupdate=func.current_timestamp())
     finished_at = Column(DateTime)
 
+
 class SingleJob(BitchBase):
     ''' table of single jobs '''
 
     __tablename__ = 'singlejob'
 
+    planned_for = Column(DateTime)
     isrepeat = Column(GUID(), ForeignKey('repeatingjob.id'), nullable=True)
     user_id = Column(Integer, ForeignKey(User.id))
+
 
 class RepeatingJob(BitchBase):
     ''' table of continuous jobs'''
@@ -93,22 +118,17 @@ class RepeatingJob(BitchBase):
     whichsingles = relationship('SingleJob', backref='repeatingjob', lazy=True)
     user_id = Column(Integer, ForeignKey(User.id))
 
-# Create DB if does not exist
-@app.before_first_request
-def create_db():
-    ''' Create DB if does not exist '''
-    db.create_all()
 
-#if current_user.is_authenticated():
-#    g.user = current_user.get_id()
-
-# Forms
+#####################################
+# FORMS
+#####################################
 class AddSTask(FlaskForm):
     ''' Add a task Form '''
     name = StringField('name', validators=[DataRequired()])
     descr = TextAreaField('descr', render_kw={"rows": 14, "cols": 50})
-    created_at = DateField('created_at')
+    planned_for = DateField('planned_for', validators=[DataRequired()])
     submit = SubmitField()
+
 
 class AddRTask(FlaskForm):
     ''' Repeating task Form '''
@@ -119,11 +139,17 @@ class AddRTask(FlaskForm):
     whento = DateField('whento')
     submit = SubmitField()
 
-# Flask translations
-@babel.localeselector
-def get_locale():
-    ''' activating translations '''
-    return request.accept_languages.best_match(app.config['LANGUAGES'])
+
+#####################################
+# FUNCTIONS
+#####################################
+def close_and_create_next():
+    ''' Close one instance of repeating task and create another. '''
+
+def todate(datestring):
+    ''' convert string to date for router. '''
+    return datetime.datetime.strptime(datestring, "%Y-%m-%d").date()
+
 
 #####################################
 # ROUTES
@@ -140,8 +166,27 @@ def dashboard():
     return render_template('dashboard.html')
 
 
+@app.route('/day', methods=['GET', 'POST'])
+@app.route('/day/<string:day>', methods=['GET', 'POST'])
+@auth_required()
+def dayschedule(day=None):
+    ''' Showing one day of work plans, day format:
+        "%Y-%m-%d"
+    '''
+    if day:
+        daytasks = SingleJob.query.filter(
+            func.date(SingleJob.planned_for)==todate(day)).all()
+    else:
+        today = datetime.date.today()
+        daytasks = SingleJob.query.filter(
+            func.date(SingleJob.planned_for)==today).all()
+
+    return render_template('dayschedule.html', daytasks=daytasks)
+
+
 @app.route('/task', methods=['GET', 'POST'])
 @app.route('/task/<uuid:tid>', methods=['GET', 'POST'])
+@limiter.limit("1/second")
 @auth_required()
 def stask(tid=None):
     ''' adding or modyfing a single task '''
@@ -164,6 +209,7 @@ def stask(tid=None):
 
 @app.route('/repeat', methods=['GET', 'POST'])
 @app.route('/repeat/<uuid:tid>', methods=['GET', 'POST'])
+@limiter.limit("1/second")
 @auth_required()
 def rtask(tid=None):
     ''' adding or modyfing a repeating task '''
