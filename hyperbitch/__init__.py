@@ -195,10 +195,11 @@ def mark_done(tid, tdone=None):
     if current_user.has_role("admin") or current_user.id == record.user_id:
         if tdone == 0:
             record.finished_at = None
+            flash('Task marked as NOT done!', 'warning')
         else:
             record.finished_at = datetime.datetime.utcnow()
+            flash('Task marked as done!', 'info')
         db.session.commit()
-        flash('Task marked as done!', 'info')
     else:
         flash('Something went wrong', 'danger')
     return redirect(url_for('dayschedule'))
