@@ -359,7 +359,7 @@ def rtask(tid=None):
 
 @app.route('/events/all')
 @auth_required()
-def events():
+def events_all():
     ''' events to show inside calendar '''
     singlejobs = SingleJob.query.filter_by(finished_at=None).all()
     allevents = []
@@ -374,9 +374,28 @@ def events():
             "url": "/day/" + jobdate.to_date_string()
         }
         allevents.append(event)
-    #eventsdict = { "events": allevents }
-    #return eventsdict
     return jsonify(allevents)
+
+@app.route('/events/sidebar')
+@auth_required()
+def events_sidebar():
+    ''' shortcuts for sidebar calendar '''
+    today = pendulum.today()
+    singlejobs = SingleJob.query.filter_by(finished_at=None).all()
+    allevents = []
+    for day in range(1, today.days_in_month+1):
+        jobdate = pendulum.datetime(today.year, today.month, day)
+        event = {
+            "id": day,
+            "allDay": True,
+            "title": "0",
+            "start": jobdate.to_iso8601_string(),
+            "end": jobdate.to_iso8601_string(),
+            "url": "/day/" + jobdate.to_date_string()
+        }
+        allevents.append(event)
+    return jsonify(allevents)
+
 
 @app.route('/admin/all_users')
 @auth_required()

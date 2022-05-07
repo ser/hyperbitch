@@ -97,6 +97,13 @@
               var sidecalendarEl = document.getElementById('sidecalendar');
               var sidecalendar = new FullCalendar.Calendar(sidecalendarEl, {
                               themeSystem: 'bootstrap5',
+                              events: '/events/sidebar',
+                              eventBackgroundColor: 'yellow',
+                              eventContent: function(arg) {
+                                return {
+                                  html: '<a href="' + arg.event.url + '">' + arg.event.title + '</a>'
+                                }
+                              },
                               headerToolbar: {
                                               start: 'title',
                                               center: '',
