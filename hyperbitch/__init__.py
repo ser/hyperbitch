@@ -9,7 +9,8 @@ import pendulum
 import redis
 import toml
 from dateutil.relativedelta import relativedelta
-from flask import Flask, flash, g, redirect, render_template, request, url_for
+from flask import (Flask, flash, g, jsonify, redirect, render_template,
+                   request, url_for)
 from flask_babel import Babel
 from flask_bootstrap import Bootstrap5
 from flask_kvsession import KVSessionExtension
@@ -356,6 +357,22 @@ def rtask(tid=None):
 
     return render_template('rtask.html', form=form)
 
+@app.route('/events/all')
+@auth_required()
+def events():
+    ''' events to show inside calendar '''
+    singlejobs = SingleJob.query.filter_by(finished_at=None).all()
+    allevents = []
+    for job in singlejobs:
+        event = {
+            "id": job.id,
+            "allDay": True,
+            "title": job.name,
+            "startTime": job.planned_for,
+        }
+        allevents.append(event)
+    eventsdict = { "events": allevents }
+    return eventsdict
 
 @app.route('/admin/all_users')
 @auth_required()
