@@ -364,14 +364,14 @@ def events():
     singlejobs = SingleJob.query.filter_by(finished_at=None).all()
     allevents = []
     for job in singlejobs:
-        jobdate = pendulum.instance(job.planned_for).to_iso8601_string()
+        jobdate = pendulum.instance(job.planned_for)
         event = {
             "id": job.id,
             "allDay": True,
             "title": job.name,
-            "start": jobdate,
-            "end": jobdate,
-            "url": "https://ala"
+            "start": jobdate.to_iso8601_string(),
+            "end": jobdate.to_iso8601_string(),
+            "url": "/day/" + jobdate.to_date_string()
         }
         allevents.append(event)
     #eventsdict = { "events": allevents }
