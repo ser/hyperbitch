@@ -61,7 +61,7 @@
             </li>
           </ul>
           <hr>
-          <div id='calendar'></div>
+          <div id='sidecalendar'></div>
           <hr>
           <div class="dropdown">
             <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -79,9 +79,9 @@
         </div>
 
         <!-- Page content -->
-        <div id="content">
+        <div id="content" style="width: 100%;">
           {{ render_messages() }}
-          <div class="d-flex flex-column flex-shrink-0 p-3 text-dark bg-white">
+          <div class="d-flex flex-column p-3 text-dark bg-white">
             {% block content %}{% endblock %}
           </div>
         </div>
@@ -94,8 +94,8 @@
             <!-- <script src="https://aunpkg.com/js-datepicker"></script> -->
             <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js'></script>
             <script>
-              var calendarEl = document.getElementById('calendar');
-              var calendar = new FullCalendar.Calendar(calendarEl, {
+              var sidecalendarEl = document.getElementById('sidecalendar');
+              var sidecalendar = new FullCalendar.Calendar(sidecalendarEl, {
                               themeSystem: 'bootstrap5',
                               headerToolbar: {
                                               start: 'title',
@@ -104,7 +104,7 @@
                                              },
                               contentHeight: 444,
               });
-              calendar.render();
+              sidecalendar.render();
             </script>
         {% endblock %}
     </body>

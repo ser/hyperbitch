@@ -364,15 +364,18 @@ def events():
     singlejobs = SingleJob.query.filter_by(finished_at=None).all()
     allevents = []
     for job in singlejobs:
+        jobdate = pendulum.instance(job.planned_for).to_iso8601_string()
         event = {
             "id": job.id,
             "allDay": True,
             "title": job.name,
-            "startTime": job.planned_for,
+            "start": jobdate,
+            "end": jobdate
         }
         allevents.append(event)
-    eventsdict = { "events": allevents }
-    return eventsdict
+    #eventsdict = { "events": allevents }
+    #return eventsdict
+    return jsonify(allevents)
 
 @app.route('/admin/all_users')
 @auth_required()
