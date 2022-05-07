@@ -5,8 +5,10 @@
 import datetime
 import uuid
 
+import pendulum
 import redis
 import toml
+from dateutil.relativedelta import relativedelta
 from flask import Flask, flash, g, redirect, render_template, request, url_for
 from flask_babel import Babel
 from flask_bootstrap import Bootstrap5
@@ -150,6 +152,90 @@ def todate(datestring):
     ''' convert string to date for router. '''
     return datetime.datetime.strptime(datestring, "%Y-%m-%d").date()
 
+def closest_day_week(weekschedule):
+    ''' find closest day in weekly schedule '''
+    today = pendulum.today()
+    wlist = list(map(int, weekschedule.split(',')))
+    tmp_y = []
+    for tmp_x in wlist:
+        nextd = None
+        if tmp_x == 1:
+            nextd = today.next(pendulum.MONDAY)
+        elif tmp_x == 2:
+            nextd = today.next(pendulum.TUESDAY)
+        elif tmp_x == 3:
+            nextd = today.next(pendulum.WEDNESDAY)
+        elif tmp_x == 4:
+            nextd = today.next(pendulum.THURSDAY)
+        elif tmp_x == 5:
+            nextd = today.next(pendulum.FRIDAY)
+        elif tmp_x == 6:
+            nextd = today.next(pendulum.SATURDAY)
+        elif tmp_x == 7:
+            nextd = today.next(pendulum.SUNDAY)
+        if nextd:
+            tmp_y.append(nextd)
+    # find closest one from all
+    return min(tmp_y, key=lambda d: abs(d - today))
+
+def closest_day_month(monthschedule):
+    ''' find closest day in monthly schedule '''
+    today = pendulum.today()
+    dinm = today.days_in_month
+    mlist = list(map(int, monthschedule.split(',')))
+    tmp_y = []
+    for tmp_x in mlist:
+        nextd = None
+        if tmp_x <= dinm: # verify if we have such many days this month
+            if tmp_x < today.day:
+                nextd = today.start_of('month') + relativedelta(months=1) \
+                    + relativedelta(days=tmp_x)
+            elif tmp_x > today.day:
+                nextd = today.start_of('month') + relativedelta(days=tmp_x)
+            elif tmp_x == today.day:
+                nextd = today
+        # TO-DO! here must be algorithm dealing with days 31 etc.
+        if nextd:
+            tmp_y.append(nextd)
+    return min(tmp_y, key=lambda d: abs(d - today))
+
+def createsinglefromrepeating(tid):
+    ''' This function creates a new single
+    task based on nearest timing required for repeating task'''
+    record = RepeatingJob.query.get(tid)
+    today = pendulum.today()
+
+    # sanity check if the task has not finished
+    if record.finished_at:
+        return "Repeating task has already finished!"
+    # sanity check if the task has not expired
+    if pendulum.instance(record.whento) < today:
+        return "Repeating task has already expired!"
+
+    # seeking for another closest day of the week
+    closestw = None
+    if record.weekschedule:
+        closestw = closest_day_week(record.weekschedule)
+
+    # seeking for another closest day in the month
+    closestm = None
+    if record.monthschedule:
+        closestm = closest_day_month(record.monthschedule)
+
+    nextschedule = min([closestw, closestm], key=lambda d: abs(d - today))
+    print(nextschedule)
+
+    singlejob = SingleJob(
+        planned_for=nextschedule,
+        name=record.name,
+        descr=record.descr,
+        isrepeat=record.id,
+        user_id=record.user_id
+        )
+    db.session.add(singlejob)
+    db.session.commit()
+
+    return "OK"
 
 #####################################
 # ROUTES
@@ -199,6 +285,9 @@ def mark_done(tid, tdone=None):
         else:
             record.finished_at = datetime.datetime.utcnow()
             flash('Task marked as done!', 'info')
+            # if it is a child of repeating task, create another single task
+            if record.isrepeat:
+                createsinglefromrepeating(record.isrepeat)
         db.session.commit()
     else:
         flash('Something went wrong', 'danger')
@@ -253,6 +342,11 @@ def rtask(tid=None):
         # TO-DO: in future form could allow modifying task user by admin
         db.session.add(record)
         db.session.commit()
+
+        # we need to create a first single task which is a child of repeating task
+        createsinglefromrepeating(record.id)
+
+        # signal to the user that all went fine
         flash('Task added!', 'info')
         return redirect(url_for('dashboard'))
 

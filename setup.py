@@ -17,6 +17,7 @@ setup(
         'flask-limiter',
         'flask-markdown',
         'flask-security-too[fsqla,common]',
+        'pendulum',
         'redis',
     ],
 )
