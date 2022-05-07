@@ -146,9 +146,6 @@ class AddRTask(FlaskForm):
 #####################################
 # FUNCTIONS
 #####################################
-def close_and_create_next():
-    ''' Close one instance of repeating task and create another. '''
-
 def todate(datestring):
     ''' convert string to date for router. '''
     return datetime.datetime.strptime(datestring, "%Y-%m-%d").date()
@@ -422,6 +419,7 @@ def all_repeatingjobs():
     ''' all repeatingjobs table '''
     data = RepeatingJob.query.all()
     return render_template('raw_table.html', data=data)
+
 
 ############################################
 # MAIN

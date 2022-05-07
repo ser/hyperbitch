@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-07 18:37+0700\n"
+"POT-Creation-Date: 2022-05-07 19:36+0700\n"
 "PO-Revision-Date: 2022-04-10 19:30+0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: pl\n"
@@ -20,18 +20,18 @@ msgstr ""
 "Generated-By: Babel 2.8.0\n"
 
 #: hyperbitch/templates/base.html:53
-msgid "Dashboard"
-msgstr ""
-
-#: hyperbitch/templates/base.html:59
 msgid "Add a single task"
 msgstr ""
 
-#: hyperbitch/templates/dayschedule.html:23
+#: hyperbitch/templates/base.html:59
+msgid "Add a repeating task"
+msgstr ""
+
+#: hyperbitch/templates/dayschedule.html:24
 msgid "Mark task as done"
 msgstr ""
 
-#: hyperbitch/templates/dayschedule.html:25
+#: hyperbitch/templates/dayschedule.html:28
 msgid "Mark task as NOT done"
 msgstr ""
 
@@ -39,5 +39,8 @@ msgstr ""
 #~ msgstr "Domek"
 
 #~ msgid "Add a task"
+#~ msgstr ""
+
+#~ msgid "Dashboard"
 #~ msgstr ""
 

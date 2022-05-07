@@ -39,7 +39,7 @@
 
         <!-- Sidebar -->
         <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 300px;">
-          <a href="{{ url_for('home') }}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+          <a href="{{ url_for('dashboard') }}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
             <span class="fs-4">
               {{ render_icon("person-workspace", color="white") }}
               HyperBitch
@@ -48,15 +48,15 @@
           <hr>
           <ul class="nav nav-pills flex-column mb-auto">
             <li>
-              <a href="{{ url_for('dashboard') }}" class="nav-link {% block sidebar_dashboard %}{% endblock %}">
-                {{ render_icon("speedometer2", color="white") }}
-                {{ _('Dashboard') }}
-              </a>
-            </li>
-            <li>
               <a href="{{ url_for('stask') }}" class="nav-link {% block sidebar_task %}{% endblock %}">
                 {{ render_icon("speedometer2", color="white") }}
                 {{ _('Add a single task') }}
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('rtask') }}" class="nav-link {% block sidebar_rtask %}{% endblock %}">
+                {{ render_icon("speedometer2", color="white") }}
+                {{ _('Add a repeating task') }}
               </a>
             </li>
           </ul>
@@ -101,7 +101,7 @@
                               eventBackgroundColor: 'yellow',
                               eventContent: function(arg) {
                                 return {
-                                  html: '<a href="' + arg.event.url + '">' + arg.event.title + '</a>'
+                                  html: '<a class="text-decoration-none font-monospace fw-bolder m-1" href="' + arg.event.url + '">' + arg.event.title + '</a>'
                                 }
                               },
                               headerToolbar: {
