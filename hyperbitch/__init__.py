@@ -211,6 +211,10 @@ def createsinglefromrepeating(tid):
     # sanity check if the task has not expired
     if pendulum.instance(record.whento) < today:
         return "Repeating task has already expired!"
+    # sanity check if there is already an unfinished child task
+    singlejobs = SingleJob.query.filter_by(isrepeat=tid).filter_by(finished_at=None).all()
+    if singlejobs:
+        return "Another child task is already added."
 
     # seeking for another closest day of the week
     closestw = None
