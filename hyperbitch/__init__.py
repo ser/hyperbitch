@@ -370,7 +370,8 @@ def events():
             "allDay": True,
             "title": job.name,
             "start": jobdate,
-            "end": jobdate
+            "end": jobdate,
+            "url": "https://ala"
         }
         allevents.append(event)
     #eventsdict = { "events": allevents }
