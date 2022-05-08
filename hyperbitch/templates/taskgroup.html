@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title_header }}{% endblock %}
+{% block sidebar_day %}active{% endblock %}
+
+{% block content %}
+<div class="card-group">
+  {% for task in tasks %}
+  <div class="card">
+      <div class="card-header fw-lighter text-muted p-0 m-0 d-md-flex justify-content-md-end">
+        <small>{{ task.id }}</small>
+        {%if task.isrepeat %}
+          <a href="{{ url_for('rtask', tid=task.isrepeat) }}" class="badge bg-secondary text-uppercase text-decoration-none">repeating</a>
+        {% endif %}
+        <a href="{{ url_for('stask', tid=task.id) }}" class="badge bg-info text-uppercase text-decoration-none">edit</a>
+      </div>
+      <div class="card-body {% if task.finished_at %}bg-success{% endif %}">
+        <h5 class="card-title">
+          {{ task.name }}
+        </h5>
+        <p class="card-text">
+{% filter markdown %}
+{{ task.descr }}
+{% endfilter %}
+        </p>
+      </div>
+      <div class="card-footer p-0 m-0">
+        {% if not task.finished_at %}
+          <div class="d-grid gap-2 p-0">
+          <a class="btn btn-info btn-sm text-decoration-none p-0 m-0" href="{{ url_for('mark_done', tid=task.id) }}">{{ _('Mark task as done') }}</a>
+          </div>
+        {% else %}
+          <div class="d-grid gap-2">
+          <a class="btn btn-info btn-sm text-decoration-none p-0 m-0" href="{{ url_for('mark_done', tid=task.id, tdone=0) }}">{{ _('Mark task as NOT done') }}</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {%endfor %}
+</div>
+{% endblock %}

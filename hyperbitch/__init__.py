@@ -21,6 +21,7 @@ from flask_security import Security, SQLAlchemyUserDatastore, auth_required
 from flask_security.models import fsqla_v2 as fsqla
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
+from flaskext.markdown import Markdown
 from simplekv.memory.redisstore import RedisStore
 from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer, String,
                         Text)
@@ -52,6 +53,7 @@ babel = Babel(app)
 bootstrap = Bootstrap5(app)
 db = SQLAlchemy(app)
 limiter = Limiter(app, key_func=get_remote_address)
+md = Markdown(app)
 kvs = KVSessionExtension(store, app)
 
 # Flask security = user registration and auth management
@@ -68,12 +70,6 @@ security = Security(app, user_datastore)
 def create_db():
     ''' Create DB if does not exist '''
     db.create_all()
-
-#@app.before_request
-#def load_user():
-#    if current_user.is_authenticated:
-#        g.user = current_user.get_id()
-#    print(current_user.is_authenticated)
 
 # Flask translations
 @babel.localeselector
@@ -269,7 +265,11 @@ def dayschedule(day=None):
         daytasks = SingleJob.query.filter(
             func.date(SingleJob.planned_for)==today).all()
 
-    return render_template('dayschedule.html', daytasks=daytasks)
+    return render_template(
+        'taskgroup.html',
+        tasks=daytasks,
+        title_header="Day schedule"
+    )
 
 
 @app.route('/done/<uuid:tid>')
