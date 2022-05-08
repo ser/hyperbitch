@@ -90,10 +90,10 @@ class BitchBase(db.Model):
     name = Column(String, nullable=False)
     descr = Column(Text, nullable=True)
     created_at = Column(DateTime, default=func.current_timestamp())
+    finished_at = Column(DateTime)
     updated_at = Column(DateTime,
                            default=func.current_timestamp(),
                            onupdate=func.current_timestamp())
-    finished_at = Column(DateTime)
 
 
 class SingleJob(BitchBase):
@@ -113,7 +113,6 @@ class RepeatingJob(BitchBase):
 
     weekschedule = Column(String, nullable=False)
     monthschedule = Column(String, nullable=False)
-    whento = Column(DateTime, nullable=False)
     whichsingles = relationship('SingleJob', backref='repeatingjob', lazy=True)
     user_id = Column(Integer, ForeignKey(User.id))
 
@@ -135,7 +134,7 @@ class AddRTask(FlaskForm):
     descr = TextAreaField('descr', render_kw={"rows": 14, "cols": 50})
     weekschedule = StringField('weekschedule')
     monthschedule = StringField('monthschedule')
-    whento = DateField('whento')
+    finished_at = DateField('finished_at')
     submit = SubmitField()
 
 
@@ -203,7 +202,7 @@ def createsinglefromrepeating(tid):
     if record.finished_at:
         return "Repeating task has already finished!"
     # sanity check if the task has not expired
-    if pendulum.instance(record.whento) < today:
+    if pendulum.instance(record.finished_at) < today:
         return "Repeating task has already expired!"
     # sanity check if there is already an unfinished child task
     singlejobs = SingleJob.query.filter_by(isrepeat=tid).filter_by(finished_at=None).all()
@@ -243,10 +242,6 @@ def createsinglefromrepeating(tid):
 @auth_required()
 def dashboard():
     ''' dashboard page'''
-
-    #job = SingleJob(name='job2', user_id=1 )
-    #db.session.add(job)
-    #db.session.commit()
     return render_template('dashboard.html')
 
 
@@ -302,7 +297,6 @@ def mark_done(tid, tdone=None):
 @auth_required()
 def stask(tid=None):
     ''' adding or modyfing a single task '''
-
     if tid:
         record = SingleJob.query.get(tid)
     else:
@@ -317,7 +311,7 @@ def stask(tid=None):
         # TO-DO: in future form could allow modifying task user by admin
         db.session.add(record)
         db.session.commit()
-        flash('Task added!', 'info')
+        flash('Task added or modified!', 'info')
         return redirect(url_for('dashboard'))
 
     return render_template('stask.html', form=form)
@@ -329,7 +323,6 @@ def stask(tid=None):
 @auth_required()
 def rtask(tid=None):
     ''' adding or modyfing a repeating task '''
-
     if tid:
         record = RepeatingJob.query.get(tid)
     else:
@@ -349,10 +342,28 @@ def rtask(tid=None):
         createsinglefromrepeating(record.id)
 
         # signal to the user that all went fine
-        flash('Task added!', 'info')
+        flash('Task added or modified!', 'info')
         return redirect(url_for('dashboard'))
 
     return render_template('rtask.html', form=form)
+
+
+@app.route('/all_repeating/<string:switch>')
+@auth_required()
+def all_repeating(switch):
+    ''' Show all repeating tasks. '''
+    if switch == "active":
+        repeatingjobs = RepeatingJob.query.filter(RepeatingJob.finished_at>=pendulum.today()).all()
+    elif switch == "past":
+        repeatingjobs = RepeatingJob.query.filter(RepeatingJob.finished_at<pendulum.today()).all()
+    else:
+        return redirect(url_for('dashboard'))
+
+    return render_template(
+        'taskgroup.html',
+        tasks=repeatingjobs,
+        title_header="All repeating tasks"
+    )
 
 
 @app.route('/events/all')

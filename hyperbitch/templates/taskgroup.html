@@ -12,7 +12,11 @@
         {%if task.isrepeat %}
           <a href="{{ url_for('rtask', tid=task.isrepeat) }}" class="badge bg-secondary text-uppercase text-decoration-none">repeating</a>
         {% endif %}
-        <a href="{{ url_for('stask', tid=task.id) }}" class="badge bg-info text-uppercase text-decoration-none">edit</a>
+        {% if task.planned_for %}
+          <a href="{{ url_for('stask', tid=task.id) }}" class="badge bg-info text-uppercase text-decoration-none">edit</a>
+        {% else %}
+          <a href="{{ url_for('rtask', tid=task.id) }}" class="badge bg-info text-uppercase text-decoration-none">edit</a>
+        {% endif %}
       </div>
       <div class="card-body {% if task.finished_at %}bg-success{% endif %}">
         <h5 class="card-title">
@@ -25,14 +29,24 @@
         </p>
       </div>
       <div class="card-footer p-0 m-0">
-        {% if not task.finished_at %}
-          <div class="d-grid gap-2 p-0">
-          <a class="btn btn-info btn-sm text-decoration-none p-0 m-0" href="{{ url_for('mark_done', tid=task.id) }}">{{ _('Mark task as done') }}</a>
-          </div>
+        {% if task.planned_for %}
+          {% if not task.finished_at %}
+            <div class="d-grid gap-2 p-0">
+              <a class="btn btn-info btn-sm text-decoration-none p-0 m-0" href="{{ url_for('mark_done', tid=task.id) }}">{{ _('Mark task as done') }}</a>
+            </div>
+          {% else %}
+            <div class="d-grid gap-2">
+              <a class="btn btn-info btn-sm text-decoration-none p-0 m-0" href="{{ url_for('mark_done', tid=task.id, tdone=0) }}">{{ _('Mark task as NOT done') }}</a>
+            </div>
+          {% endif %}
         {% else %}
-          <div class="d-grid gap-2">
-          <a class="btn btn-info btn-sm text-decoration-none p-0 m-0" href="{{ url_for('mark_done', tid=task.id, tdone=0) }}">{{ _('Mark task as NOT done') }}</a>
-          </div>
+          Looping to: {{ task.finished_at}}
+          {% if task.weekschedule %}
+            <br/>Week schedule: {{ task.weekschedule }}
+          {% endif %}
+          {% if task.monthschedule %}
+            <br/>Month schedule: {{ task.monthschedule }}
+          {% endif %}
         {% endif %}
       </div>
   </div></div>
