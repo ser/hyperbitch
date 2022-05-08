@@ -4,11 +4,11 @@
 {% block sidebar_day %}active{% endblock %}
 
 {% block content %}
-<div class="card-group">
+<div class="row row-cols-1 row-cols-md-3 g-4">
   {% for task in tasks %}
-  <div class="card">
-      <div class="card-header fw-lighter text-muted p-0 m-0 d-md-flex justify-content-md-end">
-        <small>{{ task.id }}</small>
+  <div class="col"><div class="card h-100">
+      <div class="card-header p-0 m-0 d-md-flex justify-content-md-end">
+        <small class="fw-lighter text-muted text-truncate">{{ task.id }}</small>
         {%if task.isrepeat %}
           <a href="{{ url_for('rtask', tid=task.isrepeat) }}" class="badge bg-secondary text-uppercase text-decoration-none">repeating</a>
         {% endif %}
@@ -35,7 +35,7 @@
           </div>
         {% endif %}
       </div>
-    </div>
+  </div></div>
   {%endfor %}
 </div>
 {% endblock %}
