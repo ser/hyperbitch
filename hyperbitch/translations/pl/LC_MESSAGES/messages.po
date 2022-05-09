@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-08 18:26+0700\n"
+"POT-Creation-Date: 2022-05-09 18:54+0700\n"
 "PO-Revision-Date: 2022-04-10 19:30+0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: pl\n"
@@ -33,6 +33,14 @@ msgstr ""
 
 #: hyperbitch/templates/base.html:78
 msgid "Show all expired repeating tasks"
+msgstr ""
+
+#: hyperbitch/templates/base.html:79
+msgid "Show table with repeating tasks"
+msgstr ""
+
+#: hyperbitch/templates/base.html:80
+msgid "Show table with single tasks"
 msgstr ""
 
 #: hyperbitch/templates/taskgroup.html:35

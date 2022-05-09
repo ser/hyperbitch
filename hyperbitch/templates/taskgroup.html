@@ -32,7 +32,7 @@
         {% if task.planned_for %}
           {% if not task.finished_at %}
             <div class="d-grid gap-2 p-0">
-              <a class="btn btn-info btn-sm text-decoration-none p-0 m-0" href="{{ url_for('mark_done', tid=task.id) }}">{{ _('Mark task as done') }}</a>
+              <a class="btn btn-info btn-sm text-decoration-none p-0 m-0" href="{{ url_for('mark_done', tid=task.id, tdone=1) }}">{{ _('Mark task as done') }}</a>
             </div>
           {% else %}
             <div class="d-grid gap-2">

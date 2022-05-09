@@ -4,13 +4,14 @@
 
 import datetime
 import uuid
+from logging.config import dictConfig
 
 import pendulum
 import redis
 import toml
 from dateutil.relativedelta import relativedelta
-from flask import (Flask, flash, g, jsonify, redirect, render_template,
-                   request, url_for)
+from flask import (Flask, flash, jsonify, redirect, render_template, request,
+                   url_for)
 from flask_babel import Babel
 from flask_bootstrap import Bootstrap5
 from flask_kvsession import KVSessionExtension
@@ -23,17 +24,42 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from flaskext.markdown import Markdown
 from simplekv.memory.redisstore import RedisStore
-from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer, String,
-                        Text)
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from sqlalchemy_repr import PrettyRepresentableBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 from wtforms import (BooleanField, DateField, IntegerField, StringField,
                      SubmitField, TextAreaField)
 from wtforms.validators import DataRequired
 
 from hyperbitch.helpers import GUID
+
+# logging
+dictConfig({
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'default': {
+            'format': '%(levelname)s in %(module)s: %(message)s',
+        }
+    },
+    'handlers': {
+        'journal': {
+            'class': 'logging.handlers.SysLogHandler',
+            'address':  '/dev/log',
+            'formatter': 'default',
+            'level': 'DEBUG'
+        }
+    },
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['journal']
+    }
+})
+
+#####################
+# INIT
+#####################
 
 app = Flask(__name__)
 app.config.from_file("../../hyperbitch-config.toml", load=toml.load)
@@ -198,29 +224,28 @@ def createsinglefromrepeating(tid):
     record = RepeatingJob.query.get(tid)
     today = pendulum.today()
 
-    # sanity check if the task has not finished
-    if record.finished_at:
-        return "Repeating task has already finished!"
     # sanity check if the task has not expired
     if pendulum.instance(record.finished_at) < today:
-        return "Repeating task has already expired!"
+        return "Not creating. Repeating task has already expired!"
     # sanity check if there is already an unfinished child task
     singlejobs = SingleJob.query.filter_by(isrepeat=tid).filter_by(finished_at=None).all()
     if singlejobs:
-        return "Another child task is already added."
+        return "Not creating. Another childrens task is already added and active."
 
     # seeking for another closest day of the week
     closestw = None
     if record.weekschedule:
         closestw = closest_day_week(record.weekschedule)
+        app.logger.debug(f'closestw: {closestw}')
 
     # seeking for another closest day in the month
     closestm = None
     if record.monthschedule:
         closestm = closest_day_month(record.monthschedule)
+        app.logger.debug(f'closestm: {closestm}')
 
     nextschedule = min([closestw, closestm], key=lambda d: abs(d - today))
-    print(nextschedule)
+    app.logger.info(f'Creating task for {nextschedule}.')
 
     singlejob = SingleJob(
         planned_for=nextschedule,
@@ -267,15 +292,19 @@ def dayschedule(day=None):
     )
 
 
-@app.route('/done/<uuid:tid>')
 @app.route('/done/<uuid:tid>/<int:tdone>')
 @limiter.limit("1/second")
 @auth_required()
 def mark_done(tid, tdone=None):
-    ''' Marking task as done.'''
+    ''' Marking single task as done / not done.
+        Creating another instance of task if repeating.
+    '''
     record = SingleJob.query.filter_by(id=tid).first_or_404()
+    app.logger.debug(record)
+
     # check if task belongs to user!
     if current_user.has_role("admin") or current_user.id == record.user_id:
+        app.logger.info(f'Marking task {tid} as {tdone}.')
         if tdone == 0:
             record.finished_at = None
             flash('Task marked as NOT done!', 'warning')
@@ -284,10 +313,13 @@ def mark_done(tid, tdone=None):
             flash('Task marked as done!', 'info')
             # if it is a child of repeating task, create another single task
             if record.isrepeat:
-                createsinglefromrepeating(record.isrepeat)
+                app.logger.info('As the task is repeating we create another instance.')
+                app.logger.info(createsinglefromrepeating(record.isrepeat))
         db.session.commit()
     else:
         flash('Something went wrong', 'danger')
+        return redirect(url_for('dashboard'))
+
     return redirect(url_for('dayschedule'))
 
 

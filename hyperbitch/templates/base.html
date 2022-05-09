@@ -76,6 +76,8 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
               <li><a class="dropdown-item" href="{{ url_for('all_repeating', switch='past') }}">{{ _('Show all expired repeating tasks') }}</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('all_repeatingjobs') }}">{{ _('Show table with repeating tasks') }}</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('all_singlejobs') }}">{{ _('Show table with single tasks') }}</a></li>
               <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item" href="#">Sign out</a></li>
             </ul>
@@ -118,5 +120,6 @@
               sidecalendar.render();
             </script>
         {% endblock %}
+
     </body>
 </html>
