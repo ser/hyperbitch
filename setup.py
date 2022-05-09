@@ -19,5 +19,6 @@ setup(
         'flask-security-too[fsqla,common]',
         'pendulum',
         'redis',
+        'toml'
     ],
 )

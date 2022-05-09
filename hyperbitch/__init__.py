@@ -18,7 +18,8 @@ from flask_kvsession import KVSessionExtension
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_login import current_user
-from flask_security import Security, SQLAlchemyUserDatastore, auth_required
+from flask_security import (Security, SQLAlchemyUserDatastore, auth_required,
+                            roles_accepted)
 from flask_security.models import fsqla_v2 as fsqla
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
@@ -279,11 +280,13 @@ def dayschedule(day=None):
     '''
     if day:
         daytasks = SingleJob.query.filter(
-            func.date(SingleJob.planned_for)==todate(day)).all()
+            func.date(SingleJob.planned_for)==todate(day)).filter_by(
+                user_id=current_user.id).all()
     else:
-        today = datetime.date.today()
+        today = pendulum.today()
         daytasks = SingleJob.query.filter(
-            func.date(SingleJob.planned_for)==today).all()
+            func.date(SingleJob.planned_for)==today).filter_by(
+                user_id=current_user.id).all()
 
     return render_template(
         'taskgroup.html',
@@ -302,7 +305,7 @@ def mark_done(tid, tdone=None):
     record = SingleJob.query.filter_by(id=tid).first_or_404()
     app.logger.debug(record)
 
-    # check if task belongs to user!
+    # check if task belongs to user or admin!
     if current_user.has_role("admin") or current_user.id == record.user_id:
         app.logger.info(f'Marking task {tid} as {tdone}.')
         if tdone == 0:
@@ -331,6 +334,9 @@ def stask(tid=None):
     ''' adding or modyfing a single task '''
     if tid:
         record = SingleJob.query.get(tid)
+        # verify if task belongs to the current user
+        if record.user_id != current_user.id:
+            return redirect(url_for('dashboard'))
     else:
         record = SingleJob()
     form = AddSTask(obj=record)
@@ -357,6 +363,9 @@ def rtask(tid=None):
     ''' adding or modyfing a repeating task '''
     if tid:
         record = RepeatingJob.query.get(tid)
+        # verify if task belongs to the current user
+        if record.user_id != current_user.id:
+            return redirect(url_for('dashboard'))
     else:
         record = RepeatingJob()
     form = AddRTask(obj=record)
@@ -385,9 +394,13 @@ def rtask(tid=None):
 def all_repeating(switch):
     ''' Show all repeating tasks. '''
     if switch == "active":
-        repeatingjobs = RepeatingJob.query.filter(RepeatingJob.finished_at>=pendulum.today()).all()
+        repeatingjobs = RepeatingJob.query.filter(
+            RepeatingJob.finished_at>=pendulum.today()).filter_by(
+            user_id=current_user.id).all()
     elif switch == "past":
-        repeatingjobs = RepeatingJob.query.filter(RepeatingJob.finished_at<pendulum.today()).all()
+        repeatingjobs = RepeatingJob.query.filter(
+            RepeatingJob.finished_at<pendulum.today()).filter_by(
+            user_id=current_user.id).all()
     else:
         return redirect(url_for('dashboard'))
 
@@ -401,8 +414,10 @@ def all_repeating(switch):
 @app.route('/events/all')
 @auth_required()
 def events_all():
-    ''' events to show inside calendar '''
-    singlejobs = SingleJob.query.filter_by(finished_at=None).all()
+    ''' Single tasks to show inside dashboard calendar '''
+    singlejobs = SingleJob.query.filter_by(
+        finished_at=None).filter_by(
+        user_id=current_user.id).all()
     allevents = []
     for job in singlejobs:
         jobdate = pendulum.instance(job.planned_for)
@@ -427,7 +442,9 @@ def events_sidebar():
     for day in range(1, today.days_in_month+1):
         jobdate = pendulum.datetime(today.year, today.month, day)
         singlejobs = SingleJob.query.filter_by(
-            finished_at=None).filter_by(planned_for=jobdate).all()
+            finished_at=None).filter_by(
+            planned_for=jobdate).filter_by(
+            user_id=current_user.id).all()
         event = {
             "id": day,
             "allDay": True,
@@ -442,6 +459,7 @@ def events_sidebar():
 
 @app.route('/admin/all_users')
 @auth_required()
+@roles_accepted('admin')
 def all_users():
     ''' all users table '''
     data = User.query.all()
@@ -450,6 +468,7 @@ def all_users():
 
 @app.route('/admin/all_singlejobs')
 @auth_required()
+@roles_accepted('admin')
 def all_singlejobs():
     ''' all singlejobs table '''
     data = SingleJob.query.all()
@@ -458,6 +477,7 @@ def all_singlejobs():
 
 @app.route('/admin/all_repeatingjobs')
 @auth_required()
+@roles_accepted('admin')
 def all_repeatingjobs():
     ''' all repeatingjobs table '''
     data = RepeatingJob.query.all()
