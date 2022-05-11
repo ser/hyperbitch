@@ -18,6 +18,7 @@ setup(
         'flask-markdown',
         'flask-security-too[fsqla,common]',
         'pendulum',
+        'pg8000',
         'redis',
         'toml'
     ],

@@ -73,7 +73,12 @@ import hyperbitch.views.public
 
 # KVSession keeps its data in redis, as it's temporary
 # and we don't want to backup it during db backup
-store = RedisStore(redis.StrictRedis())
+store = RedisStore(
+        redis.StrictRedis(
+            host=app.config['REDIS_HOST'],
+            port=app.config['REDIS_PORT'],
+            password=app.config['REDIS_PASSWORD']
+        ))
 
 # Flask extensions
 babel = Babel(app)
@@ -149,19 +154,32 @@ class RepeatingJob(BitchBase):
 #####################################
 class AddSTask(FlaskForm):
     ''' Add a task Form '''
-    name = StringField('name', validators=[DataRequired()])
-    descr = TextAreaField('descr', render_kw={"rows": 14, "cols": 50})
-    planned_for = DateField('planned_for', validators=[DataRequired()])
+    name = StringField(
+            'Short name of the task',
+            validators=[DataRequired()])
+    descr = TextAreaField(
+            'Description, you can use markdown syntax',
+            render_kw={"rows": 14, "cols": 50})
+    planned_for = DateField(
+            'Which day the task is planned for',
+            validators=[DataRequired()])
     submit = SubmitField()
 
 
 class AddRTask(FlaskForm):
     ''' Repeating task Form '''
-    name = StringField('name', validators=[DataRequired()])
-    descr = TextAreaField('descr', render_kw={"rows": 14, "cols": 50})
-    weekschedule = StringField('weekschedule')
-    monthschedule = StringField('monthschedule')
-    finished_at = DateField('finished_at')
+    name = StringField(
+            'Short name of the task',
+            validators=[DataRequired()])
+    descr = TextAreaField(
+            'Description, you can use markdown syntax',
+            render_kw={"rows": 14, "cols": 50})
+    weekschedule = StringField(
+            'Weekly schedule, week days as numbers separated with comma, for example - every Monday and Thursday: 1,4')
+    monthschedule = StringField(
+            'Monthly schedule, days of the month separarated with comma, for example - every 5th and 18th day of the month: 5,18')
+    finished_at = DateField(
+            'When the task should stop repeating')
     submit = SubmitField()
 
 

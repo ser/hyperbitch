@@ -29,6 +29,7 @@ TEMPLATES_AUTO_RELOAD = false
 BOOTSTRAP_BOOTSWATCH_THEME = "vapor"
 
 # SQLAlchemy
+# parsing URL: urllib.parse.quote_plus("kx%jj5/g")
 SQLALCHEMY_DATABASE_URI = "sqlite:///../hyperbitch.db"
 
 # Mail config
@@ -38,3 +39,8 @@ MAIL_USE_SSL = false
 MAIL_USE_TLS = true
 MAIL_USERNAME = "username"
 MAIL_PASSWORD = "password"
+
+# REDIS
+REDIS_HOST = "127.0.0.1"
+REDIS_PORT = "6379"
+REDIS_PASSWORD = "password"
