@@ -263,7 +263,12 @@ def createsinglefromrepeating(tid):
         closestm = closest_day_month(record.monthschedule)
         app.logger.debug(f'closestm: {closestm}')
 
-    nextschedule = min([closestw, closestm], key=lambda d: abs(d - today))
+    if closestw and closestm:
+        nextschedule = min([closestw, closestm], key=lambda d: abs(d - today))
+    elif closestw:
+        nextschedule = closestw
+    elif closestm:
+        nextschedule = closestm
     app.logger.info(f'Creating task for {nextschedule}.')
 
     singlejob = SingleJob(
