@@ -227,9 +227,9 @@ def closest_day_month(monthschedule):
         if tmp_x <= dinm: # verify if we have such many days this month
             if tmp_x < today.day:
                 nextd = today.start_of('month') + relativedelta(months=1) \
-                    + relativedelta(days=tmp_x)
+                    + relativedelta(days=tmp_x-1)
             elif tmp_x > today.day:
-                nextd = today.start_of('month') + relativedelta(days=tmp_x)
+                nextd = today.start_of('month') + relativedelta(days=tmp_x-1)
             elif tmp_x == today.day:
                 nextd = today
         # TO-DO! here must be algorithm dealing with days 31 etc.
