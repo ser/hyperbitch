@@ -305,14 +305,23 @@ def dayschedule(day=None):
         "%Y-%m-%d"
     '''
     if day:
-        daytasks = SingleJob.query.filter(
-            func.date(SingleJob.planned_for)==todate(day)).filter_by(
-                user_id=current_user.id).all()
+        query = SingleJob.query.filter(
+            func.date(SingleJob.planned_for)==todate(day))
+        if current_user.has_role("admin"):
+            daytasks = query.all()
+        else:
+            daytasks = query.filter_by(
+                    user_id=current_user.id).all()
+
     else:
         today = pendulum.today()
-        daytasks = SingleJob.query.filter(
-            func.date(SingleJob.planned_for)==today).filter_by(
-                user_id=current_user.id).all()
+        query = SingleJob.query.filter(
+            func.date(SingleJob.planned_for)==today)
+        if current_user.has_role("admin"):
+            daytasks = query.all()
+        else:
+            daytasks = query.filter_by(
+                    user_id=current_user.id).all()
 
     return render_template(
         'taskgroup.html',
@@ -420,13 +429,21 @@ def rtask(tid=None):
 def all_repeating(switch):
     ''' Show all repeating tasks. '''
     if switch == "active":
-        repeatingjobs = RepeatingJob.query.filter(
-            RepeatingJob.finished_at>=pendulum.today()).filter_by(
-            user_id=current_user.id).all()
+        query = RepeatingJob.query.filter(
+            RepeatingJob.finished_at>=pendulum.today())
+        if current_user.has_role("admin"):
+            repeatingjobs = query.all()
+        else:
+            repeatingjobs = query.filter_by(
+                    user_id=current_user.id).all()
     elif switch == "past":
-        repeatingjobs = RepeatingJob.query.filter(
-            RepeatingJob.finished_at<pendulum.today()).filter_by(
-            user_id=current_user.id).all()
+        query = RepeatingJob.query.filter(
+            RepeatingJob.finished_at<pendulum.today())
+        if current_user.has_role("admin"):
+            repeatingjobs = query.all()
+        else:
+            repeatingjobs = query.filter_by(
+                user_id=current_user.id).all()
     else:
         return redirect(url_for('dashboard'))
 
@@ -441,9 +458,13 @@ def all_repeating(switch):
 @auth_required()
 def events_all():
     ''' Single tasks to show inside dashboard calendar '''
-    singlejobs = SingleJob.query.filter_by(
-        finished_at=None).filter_by(
-        user_id=current_user.id).all()
+    query = SingleJob.query.filter_by(
+            finished_at=None)
+    if current_user.has_role("admin"):
+        singlejobs = query.all()
+    else:
+        singlejobs = query.filter_by(
+                user_id=current_user.id).all()
     allevents = []
     for job in singlejobs:
         jobdate = pendulum.instance(job.planned_for)
@@ -467,10 +488,14 @@ def events_sidebar():
     allevents = []
     for day in range(1, today.days_in_month+1):
         jobdate = pendulum.datetime(today.year, today.month, day)
-        singlejobs = SingleJob.query.filter_by(
+        query = SingleJob.query.filter_by(
             finished_at=None).filter_by(
-            planned_for=jobdate).filter_by(
-            user_id=current_user.id).all()
+            planned_for=jobdate)
+        if current_user.has_role("admin"):
+            singlejobs = query.all()
+        else:
+            singlejobs = query.filter_by(
+                    user_id=current_user.id).all()
         event = {
             "id": day,
             "allDay": True,
