@@ -16,6 +16,9 @@ SECURITY_PASSWORD_HASH = "argon2"
 # python -c "import secrets; print(secrets.SystemRandom().getrandbits(128))"
 SECURITY_PASSWORD_SALT = ""
 
+# user can change password
+SECURITY_CHANGEABLE = true
+
 # your server name
 SERVER_NAME = "example.com"
 

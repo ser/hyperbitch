@@ -15,6 +15,7 @@ setup(
         'flask-babel',
         'flask-kvsession-fork',
         'flask-limiter',
+        'flask-mail',
         'flask-markdown',
         'flask-security-too[fsqla,common]',
         'pendulum',

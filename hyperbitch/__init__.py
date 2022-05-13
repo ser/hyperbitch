@@ -18,6 +18,7 @@ from flask_kvsession import KVSessionExtension
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_login import current_user
+from flask_mail import Mail
 from flask_security import (Security, SQLAlchemyUserDatastore, auth_required,
                             roles_accepted)
 from flask_security.models import fsqla_v2 as fsqla
@@ -66,6 +67,7 @@ app = Flask(__name__)
 app.config.from_file("../../hyperbitch-config.toml", load=toml.load)
 
 
+# MAIL config
 # pylint: disable=wrong-import-position disable=too-few-public-methods disable=no-member
 import hyperbitch.views.public
 
@@ -85,6 +87,7 @@ babel = Babel(app)
 bootstrap = Bootstrap5(app)
 db = SQLAlchemy(app)
 limiter = Limiter(app, key_func=get_remote_address)
+mail = Mail(app)
 md = Markdown(app)
 kvs = KVSessionExtension(store, app)
 

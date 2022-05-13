@@ -6,5 +6,5 @@ pybabel update -i /tmp/messages.pot -d hyperbitch/translations
 pybabel compile -d hyperbitch/translations
 
 export FLASK_APP="hyperbitch"
-export FLASK_ENV="development"
+#export FLASK_ENV="development"
 FLASK_RUN_PORT=5088 FLASK_RUN_HOST="0.0.0.0" flask run
