@@ -27,6 +27,9 @@
 {{ task.descr }}
 {% endfilter %}
         </p>
+        {%if task.planned_for < today %}
+        <p class="bg-warning text-dark text-center">Planned for: {{ task.planned_for.strftime('%Y-%m-%d') }}</p>
+        {% endif %}
       </div>
       <div class="card-footer p-0 m-0">
         {% if task.planned_for %}

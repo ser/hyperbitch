@@ -334,6 +334,7 @@ def dayschedule(day=None):
     return render_template(
         'taskgroup.html',
         tasks=alltasks,
+        today=datetime.datetime.now(),
         title_header="Day schedule"
     )
 
