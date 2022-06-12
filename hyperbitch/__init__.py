@@ -370,7 +370,7 @@ def stask(tid=None):
     if tid:
         record = SingleJob.query.get(tid)
         # verify if task belongs to the current user
-        if record.user_id != current_user.id:
+        if not current_user.has_role("admin") and record.user_id != current_user.id:
             return redirect(url_for('dashboard'))
     else:
         record = SingleJob()
@@ -399,7 +399,7 @@ def rtask(tid=None):
     if tid:
         record = RepeatingJob.query.get(tid)
         # verify if task belongs to the current user
-        if record.user_id != current_user.id:
+        if not current_user.has_role("admin") and record.user_id != current_user.id:
             return redirect(url_for('dashboard'))
     else:
         record = RepeatingJob()
