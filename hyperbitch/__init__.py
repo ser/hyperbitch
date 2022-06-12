@@ -497,9 +497,9 @@ def events_sidebar():
     allevents = []
     for day in range(1, today.days_in_month+1):
         jobdate = pendulum.datetime(today.year, today.month, day)
-        query = SingleJob.query.filter_by(
-            finished_at=None).filter_by(
-            planned_for=jobdate)
+        query = SingleJob.query.filter(
+            SingleJob.finished_at==None).filter(
+            SingleJob.planned_for<=jobdate)
         if current_user.has_role("admin"):
             singlejobs = query.all()
         else:

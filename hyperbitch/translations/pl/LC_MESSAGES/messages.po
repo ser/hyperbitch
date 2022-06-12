@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-06-12 15:23+0000\n"
+"POT-Creation-Date: 2022-06-12 15:51+0000\n"
 "PO-Revision-Date: 2022-04-10 19:30+0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: pl\n"
@@ -43,11 +43,11 @@ msgstr ""
 msgid "Show table with single tasks"
 msgstr ""
 
-#: hyperbitch/templates/taskgroup.html:39
+#: hyperbitch/templates/taskgroup.html:38
 msgid "Mark task as done"
 msgstr ""
 
-#: hyperbitch/templates/taskgroup.html:43
+#: hyperbitch/templates/taskgroup.html:42
 msgid "Mark task as NOT done"
 msgstr ""
 
