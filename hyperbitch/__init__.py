@@ -311,7 +311,7 @@ def dayschedule(day=None):
 
     # first we seek for outdated unfinished tasks
     query = SingleJob.query.filter(
-            func.date(SingleJob.planned_for)<todate(day)).filter(
+            func.date(SingleJob.planned_for)<today).filter(
                     SingleJob.finished_at==None)
     if current_user.has_role("admin"):
         exptasks = query.all()
