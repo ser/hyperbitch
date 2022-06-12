@@ -305,27 +305,35 @@ def dayschedule(day=None):
         "%Y-%m-%d"
     '''
     if day:
-        query = SingleJob.query.filter(
-            func.date(SingleJob.planned_for)==todate(day))
-        if current_user.has_role("admin"):
-            daytasks = query.all()
-        else:
-            daytasks = query.filter_by(
-                    user_id=current_user.id).all()
-
+        today = todate(day)
     else:
         today = pendulum.today()
-        query = SingleJob.query.filter(
+
+    # first we seek for outdated unfinished tasks
+    query = SingleJob.query.filter(
+            func.date(SingleJob.planned_for)<todate(day)).filter(
+                    SingleJob.finished_at==None)
+    if current_user.has_role("admin"):
+        exptasks = query.all()
+    else:
+        exptasks = query.filter_by(
+                user_id=current_user.id).all()
+
+    # second we gather all tasks for particular day
+    query = SingleJob.query.filter(
             func.date(SingleJob.planned_for)==today)
-        if current_user.has_role("admin"):
-            daytasks = query.all()
-        else:
-            daytasks = query.filter_by(
-                    user_id=current_user.id).all()
+    if current_user.has_role("admin"):
+        daytasks = query.all()
+    else:
+        daytasks = query.filter_by(
+                user_id=current_user.id).all()
+
+    # we combine these two
+    alltasks = exptasks + daytasks
 
     return render_template(
         'taskgroup.html',
-        tasks=daytasks,
+        tasks=alltasks,
         title_header="Day schedule"
     )
 
