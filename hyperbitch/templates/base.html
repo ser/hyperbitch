@@ -48,16 +48,24 @@
           <hr>
           <ul class="nav nav-pills flex-column mb-auto">
             <li>
-              <a href="{{ url_for('stask') }}" class="nav-link {% block sidebar_task %}{% endblock %}">
+              <a href="{{ url_for('dayschedule') }}" class="nav-link {% block sidebar_day %}{% endblock %}">
                 {{ render_icon("speedometer2", color="white") }}
-                {{ _('Add a single task') }}
+                {{ _('Today TO DO') }}
               </a>
             </li>
             <li>
-              <a href="{{ url_for('rtask') }}" class="nav-link {% block sidebar_rtask %}{% endblock %}">
-                {{ render_icon("speedometer2", color="white") }}
-                {{ _('Add a repeating task') }}
+              <span class="nav-link">
+              {{ render_icon("speedometer2", color="white") }}
+              {{ _('Add') }}
+              <a href="{{ url_for('stask') }}">
+                {{ _('single') }}
               </a>
+              /
+              <a href="{{ url_for('rtask') }}">
+                {{ _('repeating') }}
+              </a>
+                {{ _('task') }}
+              </span>
             </li>
             <li>
               <a href="{{ url_for('all_repeating', switch='active') }}" class="nav-link {% block sidebar_all %}{% endblock %}">
