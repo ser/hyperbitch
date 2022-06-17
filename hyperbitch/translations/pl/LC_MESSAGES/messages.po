@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-06-12 15:55+0000\n"
+"POT-Creation-Date: 2022-06-17 02:51+0000\n"
 "PO-Revision-Date: 2022-04-10 19:30+0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: pl\n"
@@ -20,34 +20,46 @@ msgstr ""
 "Generated-By: Babel 2.8.0\n"
 
 #: hyperbitch/templates/base.html:53
-msgid "Add a single task"
+msgid "Today TO DO"
 msgstr ""
 
 #: hyperbitch/templates/base.html:59
-msgid "Add a repeating task"
+msgid "Add"
+msgstr ""
+
+#: hyperbitch/templates/base.html:61
+msgid "single"
 msgstr ""
 
 #: hyperbitch/templates/base.html:65
+msgid "repeating"
+msgstr ""
+
+#: hyperbitch/templates/base.html:67
+msgid "task"
+msgstr ""
+
+#: hyperbitch/templates/base.html:73
 msgid "All repeating tasks"
 msgstr ""
 
-#: hyperbitch/templates/base.html:78
+#: hyperbitch/templates/base.html:86
 msgid "Show all expired repeating tasks"
 msgstr ""
 
-#: hyperbitch/templates/base.html:79
+#: hyperbitch/templates/base.html:87
 msgid "Show table with repeating tasks"
 msgstr ""
 
-#: hyperbitch/templates/base.html:80
+#: hyperbitch/templates/base.html:88
 msgid "Show table with single tasks"
 msgstr ""
 
-#: hyperbitch/templates/taskgroup.html:38
+#: hyperbitch/templates/taskgroup.html:40
 msgid "Mark task as done"
 msgstr ""
 
-#: hyperbitch/templates/taskgroup.html:42
+#: hyperbitch/templates/taskgroup.html:44
 msgid "Mark task as NOT done"
 msgstr ""
 
@@ -58,5 +70,11 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Dashboard"
+#~ msgstr ""
+
+#~ msgid "Add a single task"
+#~ msgstr ""
+
+#~ msgid "Add a repeating task"
 #~ msgstr ""
 

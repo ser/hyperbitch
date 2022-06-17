@@ -1,3 +1,5 @@
+#!/bin/bash
+
 pip install -e .
 
 pybabel extract -F babel.cfg -k _l -o /tmp/messages.pot .
